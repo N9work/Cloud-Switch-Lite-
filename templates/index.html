@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <title>Cloud Switch (Lite)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#11162a; --muted:#7c86a6;
+      --txt:#e8ecff; --accent:#6aa6ff; --accent-2:#8ef6d1; --danger:#ff6b6b;
+      --border:#1a2140; --panel-2:#0f1530;
+      --radius:16px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:linear-gradient(180deg,#0b1020,#0d1230 40%,#101739);color:var(--txt);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans",sans-serif}
+    a{color:var(--accent);text-decoration:none}
+    a:hover{opacity:.9}
+    .container{max-width:1100px;margin:40px auto;padding:0 20px}
+    .header{
+      background:linear-gradient(135deg,#141b38,rgba(20,27,56,.4));
+      border:1px solid var(--border); border-radius:var(--radius);
+      padding:24px 22px; display:flex; align-items:center; justify-content:space-between;
+      box-shadow:0 10px 40px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.03);
+    }
+    .title{display:flex;gap:12px;align-items:center}
+    .logo{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,#4158d0,#c850c0 50%,#ffcc70)}
+    .logo svg{filter:drop-shadow(0 2px 8px rgba(0,0,0,.5))}
+    h1{margin:0;font-size:22px;letter-spacing:.3px}
+    .sub{font-size:12px;color:var(--muted);margin-top:2px}
+
+    .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:18px}
+    @media (max-width:900px){ .grid{grid-template-columns:1fr} }
+
+    .card{
+      background:linear-gradient(180deg,var(--panel),var(--panel-2));
+      border:1px solid var(--border); border-radius:var(--radius); padding:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.3), inset 0 0 0 1px rgba(255,255,255,.03);
+    }
+    .card h3{margin:2px 0 14px;font-size:16px}
+
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .select{
+      appearance:none;background:#0d1430;border:1px solid var(--border);color:var(--txt);
+      padding:10px 12px;border-radius:12px;font-weight:600;min-width:180px;
+      background-image:linear-gradient(180deg,transparent,rgba(255,255,255,.02));
+    }
+    .btn{
+      border:0;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;
+      color:#071220;background:var(--accent);box-shadow:0 6px 16px rgba(106,166,255,.35);
+      transition:transform .05s ease, filter .2s ease;
+    }
+    .btn:hover{filter:saturate(1.1)}
+    .btn:active{transform:translateY(1px)}
+    .btn-ghost{
+      background:transparent;color:var(--txt);border:1px solid var(--border);box-shadow:none
+    }
+    .btn-danger{background:var(--danger);color:white;box-shadow:0 6px 16px rgba(255,107,107,.35)}
+
+    /* Flash messages */
+    .flashes{display:grid;gap:10px;margin:18px 0}
+    .flash{padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:#102046}
+    .flash.success{background:rgba(142,246,209,.12);border-color:rgba(142,246,209,.35)}
+    .flash.error{background:rgba(255,107,107,.12);border-color:rgba(255,107,107,.35)}
+
+    /* Uploader */
+    .drop{
+      border:1.5px dashed #2a335c;border-radius:16px;padding:18px;text-align:center;
+      background:linear-gradient(180deg,#0f1736,#0e1531); color:var(--muted);
+      transition:border-color .2s ease, background .2s ease;
+    }
+    .drop.dragover{border-color:var(--accent);background:linear-gradient(180deg,#101a44,#0d1434)}
+    .drop strong{color:#cfe1ff}
+    .muted{color:var(--muted);font-size:12px}
+
+    /* Table */
+    table{width:100%;border-collapse:separate;border-spacing:0;overflow:hidden;border-radius:14px;border:1px solid var(--border)}
+    thead th{background:#0f1734;color:#aeb8d9;font-weight:700;text-align:left;padding:12px 14px;border-bottom:1px solid var(--border);font-size:12px;letter-spacing:.3px}
+    tbody td{padding:12px 14px;border-bottom:1px solid #1a2144}
+    tbody tr:last-child td{border-bottom:0}
+    tbody tr:hover{background:#0e1631}
+    .pill{
+      display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;
+      background:rgba(106,166,255,.14);border:1px solid rgba(106,166,255,.35);color:#cfe1ff;font-size:12px
+    }
+    .actions{display:flex;gap:8px}
+    .tiny{padding:6px 10px;border-radius:10px;font-size:12px}
+
+    .footer{margin:20px 0;color:var(--muted);font-size:12px;text-align:center}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="title">
+        <div class="logo" aria-hidden="true">
+          <!-- cloud icon -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 19h11a5 5 0 0 0 .6-9.97A7 7 0 0 0 5.06 9.5C3.32 10.1 2 11.77 2 13.7A4.3 4.3 0 0 0 6 19z"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Cloud Switch (Lite)</h1>
+          <div class="sub">อัปโหลด/ดาวน์โหลดไฟล์ และสลับผู้ให้บริการ Cloud ได้ทันที</div>
+        </div>
+      </div>
+      <div class="pill" title="ผู้ให้บริการที่ใช้งานอยู่">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 0 0-5 5v1H6a4 4 0 0 0 0 8h9a4 4 0 0 0 1-7.874V7a5 5 0 0 0-4-5z"/></svg>
+        ACTIVE: {{ active|upper }}
+      </div>
+    </div>
+
+    <!-- Flash messages -->
+    {% with msgs = get_flashed_messages(with_categories=true) %}
+      {% if msgs %}
+      <div class="flashes">
+        {% for cat, msg in msgs %}
+          <div class="flash {{cat}}">{{ msg }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="grid">
+      <!-- Switch provider -->
+      <div class="card">
+        <h3>สลับผู้ให้บริการ Cloud</h3>
+        <form action="/switch" method="post" class="row" onsubmit="return confirm('ยืนยันการสลับผู้ให้บริการ?')">
+          <select name="provider" class="select" aria-label="เลือกผู้ให้บริการ">
+            <option value="aws" {{ "selected" if active=="aws" else "" }}>AWS S3</option>
+            <option value="cloudinary" {{ "selected" if active=="cloudinary" else "" }}>Cloudinary</option>
+          </select>
+          <button class="btn" type="submit">Switch</button>
+          <span class="muted">สถานะปัจจุบัน: <strong>{{ active|upper }}</strong></span>
+        </form>
+      </div>
+
+      <!-- Uploader -->
+      <div class="card">
+        <h3>อัปโหลดไฟล์</h3>
+        <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm">
+          <div id="dropzone" class="drop">
+            <div><strong>ลากไฟล์มาวาง</strong> หรือ <label for="file" style="text-decoration:underline;cursor:pointer;">คลิกเพื่อเลือก</label></div>
+            <div class="muted" id="fileName">ยังไม่ได้เลือกไฟล์</div>
+          </div>
+          <input id="file" type="file" name="file" style="display:none" />
+          <div class="row" style="margin-top:12px">
+            <button class="btn" type="submit">Upload</button>
+            <button class="btn btn-ghost" type="button" id="clearBtn">ล้างไฟล์</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- File list -->
+    <div class="card" style="margin-top:18px">
+      <h3>ไฟล์ทั้งหมด ({{ active|upper }})</h3>
+      {% if files %}
+      <div style="overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:48%">ชื่อไฟล์</th>
+              <th style="width:18%">ขนาด</th>
+              <th style="width:18%">การทำงาน</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for f in files %}
+            <tr>
+              <td title="{{ f.key }}">{{ f.key }}</td>
+              <td data-bytes="{{ f.size }}" class="size">-</td>
+              <td class="actions">
+                <a class="btn tiny" target="_blank" href="{{ url_for('download', key=f.key) }}" title="ดาวน์โหลด">Download</a>
+                <form action="{{ url_for('delete', key=f.key) }}" method="post" onsubmit="return confirm('ลบไฟล์ {{ f.key }} ?')" style="display:inline">
+                  <button class="btn btn-danger tiny" type="submit" title="ลบไฟล์">Delete</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="muted">ยังไม่มีไฟล์ใน {{ active|upper }}</p>
+      {% endif %}
+    </div>
+
+    <div class="footer">© {{  (now() if false)  }} Cloud Switch </div>
+  </div>
+
+  <script>
+    // แปลง byte → KB/MB บนตาราง
+    (function(){
+      const fmt = b=>{
+        const n = Number(b||0);
+        if(n<1024) return n+" B";
+        const kb = n/1024; if(kb<1024) return kb.toFixed(1)+" KB";
+        const mb = kb/1024; if(mb<1024) return mb.toFixed(2)+" MB";
+        return (mb/1024).toFixed(2)+" GB";
+      };
+      document.querySelectorAll(".size").forEach(td=>{
+        td.textContent = fmt(td.getAttribute("data-bytes"));
+      });
+    })();
+
+    // Drag & Drop uploader
+    const dz = document.getElementById('dropzone');
+    const fi = document.getElementById('file');
+    const fn = document.getElementById('fileName');
+    const clr = document.getElementById('clearBtn');
+
+    dz.addEventListener('click', ()=> fi.click());
+    dz.addEventListener('dragover', e=>{ e.preventDefault(); dz.classList.add('dragover'); });
+    dz.addEventListener('dragleave', ()=> dz.classList.remove('dragover'));
+    dz.addEventListener('drop', e=>{
+      e.preventDefault(); dz.classList.remove('dragover');
+      if(e.dataTransfer.files.length){ fi.files = e.dataTransfer.files; fn.textContent = fi.files[0].name; }
+    });
+    fi.addEventListener('change', ()=> fn.textContent = fi.files.length ? fi.files[0].name : 'ยังไม่ได้เลือกไฟล์');
+    clr.addEventListener('click', ()=>{
+      fi.value = ""; fn.textContent = 'ยังไม่ได้เลือกไฟล์';
+    });
+  </script>
+</body>
+</html>

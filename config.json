@@ -1,0 +1,14 @@
+{
+  "active_provider": "aws",
+  "aws": {
+    "bucket": "bucketAWS ",
+    "region": "regionAWS",
+    "access_key": "accessKeyAWS",
+    "secret_key": "secretKeyAWS"
+  },
+  "cloudinary": {
+    "cloud_name": "cloudnameCLOUDINARY",
+    "api_key": "apikeyCLOUDINARY",
+    "api_secret": "apisecretCLOUDINARY"
+  }
+}
