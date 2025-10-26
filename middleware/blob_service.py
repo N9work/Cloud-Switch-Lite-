@@ -103,8 +103,14 @@ class CloudinaryClient:
         return [{"key": r["public_id"], "size": r["bytes"]} for r in res["resources"]]
 
     def download(self, key):
+        from cloudinary.api import resource
         from urllib.request import urlopen
-        url = cloudinary.CloudinaryImage(key).build_url()
+        try:
+            info = resource(key) 
+        except Exception:
+            info = resource(key, resource_type="raw")
+
+        url = info.get("secure_url") or info.get("url")
         return urlopen(url).read()
 
     def delete(self, key):
